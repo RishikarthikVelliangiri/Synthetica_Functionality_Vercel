@@ -24,13 +24,13 @@ export function ScrollReveal({
   const ref = useRef(null);
   
   // Format the margin string properly with px suffix
-  const marginTop = `${viewOffset.top || 0}px`;
-  const marginBottom = `${viewOffset.bottom || 0}px`;
+  const topOffset = viewOffset.top || 0;
+  const bottomOffset = viewOffset.bottom || 0;
   
-  // Explicitly casting margin string to satisfy TypeScript
+  // Use the correct property name 'margin' instead of 'rootMargin'
   const inView = useInView(ref, { 
-    once, 
-    margin: `${marginTop} 0px ${marginBottom} 0px` as const
+    once,
+    margin: `${-topOffset}px 0px ${-bottomOffset}px 0px`
   });
   
   // Check for reduced motion preference
