@@ -72,7 +72,8 @@ export async function POST(request: Request) {
 
       // Try to extract a JSON array from the output if present
       if (format.toLowerCase() === "json") {
-        let jsonMatch = generatedText.match(/(\[[\s\S]*?\])/); // Changed from /s flag to [\s\S]
+        // Using character class instead of 's' flag for cross-compatibility
+        let jsonMatch = generatedText.match(/(\[[\s\S]*?\])/);
         if (jsonMatch) {
           let jsonStr = jsonMatch[1];
           // If the array is inside a string (escaped), unescape it
