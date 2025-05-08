@@ -46,7 +46,7 @@ const OutputDisplay = ({
       for (let i = 1; i < lines.length; i++) {
         const row = lines[i];
         // Handle quoted fields and commas inside quotes
-        const values = [];
+        const values: string[] = [];
         let current = '';
         let inQuotes = false;
         for (let c = 0, col = 0; c < row.length; c++) {
