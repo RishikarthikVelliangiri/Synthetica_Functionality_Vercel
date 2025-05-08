@@ -280,7 +280,10 @@ export async function POST(request: Request) {
           if (entryCount === 0) {
             // fallback: count any repeated tag that is not the root
             const allTags = [...generatedText.matchAll(/<([a-zA-Z0-9_]+)[\s>]/g)].map(m => m[1]);
-            const tagCounts = allTags.reduce((acc, t) => { acc[t] = (acc[t] || 0) + 1; return acc; }, {});
+            const tagCounts: Record<string, number> = allTags.reduce((acc: Record<string, number>, t) => { 
+              acc[t] = (acc[t] || 0) + 1; 
+              return acc; 
+            }, {});
             // exclude 'employees' or root
             const mainTag = Object.entries(tagCounts).filter(([k]) => k !== 'employees').sort((a, b) => b[1] - a[1])[0];
             if (mainTag) entryCount = mainTag[1];
