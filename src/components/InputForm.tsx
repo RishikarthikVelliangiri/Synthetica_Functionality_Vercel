@@ -165,12 +165,12 @@ export default function InputForm({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
+          whileTap={{ scale: 0.98 }}
         >
           <Button
             type="submit"
             className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium py-2 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
             disabled={isLoading || !prompt.trim() || count < 1}
-            whileTap={{ scale: 0.98 }}
           >
             {isLoading ? 
               <div className="flex items-center gap-2">
