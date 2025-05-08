@@ -331,6 +331,9 @@ export async function POST(request: Request) {
 
 // Function to construct a detailed AI prompt based on the requested format
 function constructAIPrompt(prompt: string, format: string, count: number): string {
+  // Professional business data instruction
+  const professionalInstruction = `\nCRITICAL: Generate ONLY professional business data with realistic names and information. DO NOT use fictional characters, fairytale names, pop culture references, or names like 'Bob the Builder' or 'Frankenstein'. Use realistic business names, job titles, and industry-appropriate terminology that would be suitable for a professional business environment.`;
+  
   // Base instructions for all formats
   let baseInstructions = `Generate exactly ${count} entries of synthetic data based on the following user request. Make sure to generate that many entries and nothing more or nothing less. Take as much time as you need to, and do not try to think it is too big to generate. If it is a tedious task, still do it.: ${prompt}\n\n`;
   const strictWarning = `\nIMPORTANT: Only output valid ${format.toUpperCase()} data. Do NOT include any explanations, comments, or extra text. The output must be ready to use as-is in the specified format.`;
@@ -338,7 +341,7 @@ function constructAIPrompt(prompt: string, format: string, count: number): strin
   // Format-specific instructions
   switch (format.toLowerCase()) {
     case "json":
-      return `${baseInstructions}Please provide the data in valid JSON format with the following guidelines:\n
+      return `${baseInstructions}${professionalInstruction}\nPlease provide the data in valid JSON format with the following guidelines:\n
 1. Use proper JSON syntax with double quotes for keys and string values
 2. Include an array of exactly ${count} objects with consistent structure
 3. Ensure all field names are camelCase
@@ -347,7 +350,7 @@ function constructAIPrompt(prompt: string, format: string, count: number): strin
 6. Format the JSON with proper indentation${strictWarning}`;
 
     case "csv":
-      return `${baseInstructions}Please provide the data in valid CSV format with the following guidelines:\n
+      return `${baseInstructions}${professionalInstruction}\nPlease provide the data in valid CSV format with the following guidelines:\n
 1. Include a header row with column names
 2. Use commas as separators
 3. Properly escape any commas within field values using double quotes
@@ -357,7 +360,7 @@ function constructAIPrompt(prompt: string, format: string, count: number): strin
 7. Output exactly ${count} data rows (not counting the header)${strictWarning}`;
 
     case "sql":
-      return `${baseInstructions}Please provide the data as SQL INSERT statements with the following guidelines:\n
+      return `${baseInstructions}${professionalInstruction}\nPlease provide the data as SQL INSERT statements with the following guidelines:\n
 1. Include a CREATE TABLE statement with appropriate data types
 2. Follow with INSERT statements for exactly ${count} data rows
 3. Use proper SQL syntax with semicolons at the end of each statement
@@ -366,7 +369,7 @@ function constructAIPrompt(prompt: string, format: string, count: number): strin
 6. Do not include any explanatory text outside the SQL statements${strictWarning}`;
 
     case "xml":
-      return `${baseInstructions}Please provide the data in valid XML format with the following guidelines:\n
+      return `${baseInstructions}${professionalInstruction}\nPlease provide the data in valid XML format with the following guidelines:\n
 1. Include a root element that contains all data items
 2. Use consistent element names for each data item
 3. Use attributes appropriately for metadata
@@ -376,7 +379,7 @@ function constructAIPrompt(prompt: string, format: string, count: number): strin
 7. Output exactly ${count} data items${strictWarning}`;
 
     case "yaml":
-      return `${baseInstructions}Please provide the data in valid YAML format with the following guidelines:\n
+      return `${baseInstructions}${professionalInstruction}\nPlease provide the data in valid YAML format with the following guidelines:\n
 1. Use proper YAML syntax with consistent indentation
 2. Include a list of exactly ${count} items with consistent structure
 3. Use appropriate data types (strings, numbers, booleans)
@@ -385,6 +388,6 @@ function constructAIPrompt(prompt: string, format: string, count: number): strin
 6. Ensure the data is realistic and varied${strictWarning}`;
 
     default:
-      return `${baseInstructions}Provide the data in a clean, structured format that's ready to use. Output exactly ${count} entries. ${strictWarning}`;
+      return `${baseInstructions}${professionalInstruction}\nProvide the data in a clean, structured format that's ready to use. Output exactly ${count} entries. ${strictWarning}`;
   }
 }

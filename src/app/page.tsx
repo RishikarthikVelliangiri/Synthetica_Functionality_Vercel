@@ -6,7 +6,6 @@ import OutputDisplay from "../components/OutputDisplay";
 import { motion } from "framer-motion";
 import { FloatingShapes } from "../components/ui/floating-shapes";
 import { ScrollReveal } from "../components/ui/scroll-reveal";
-import { ConfettiEffect } from "../components/ui/confetti-effect";
 
 const BATCH_SIZE = 100;
 
@@ -15,7 +14,6 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [format, setFormat] = useState<string>("json");
-  const [showConfetti, setShowConfetti] = useState<boolean>(false);
 
   const handleSubmit = async (prompt: string, selectedFormat: string, count: number) => {
     setFormat(selectedFormat);
@@ -144,9 +142,6 @@ export default function Home() {
           finalData = results.join("\n");
       }
       setGeneratedData(finalData);
-
-      // When done successfully, show confetti
-      setShowConfetti(true);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred",
@@ -159,13 +154,6 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-6 md:p-12 bg-gradient-to-b from-white to-blue-50">
-      {/* Show confetti on successful data generation */}
-      <ConfettiEffect
-        show={showConfetti}
-        duration={4000}
-        onComplete={() => setShowConfetti(false)}
-      />
-      
       {/* Floating animated shapes in background */}
       <FloatingShapes 
         count={8} 
