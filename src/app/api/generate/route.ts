@@ -303,13 +303,24 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json({ data: generatedText });
-    } catch (aiError) {
+    } catch (aiError: unknown) {
       console.error("Google Gemini API error:", aiError);
+      
+      // Handle the error with proper type checking
+      let errorMessage = "Unknown error";
+      if (aiError && typeof aiError === 'object' && 'message' in aiError) {
+        errorMessage = String(aiError.message);
+      } else if (aiError && typeof aiError === 'object' && 'toString' in aiError && typeof aiError.toString === 'function') {
+        errorMessage = aiError.toString();
+      } else if (aiError !== null && aiError !== undefined) {
+        errorMessage = String(aiError);
+      }
+      
       return NextResponse.json({
-        error: "Google Gemini API error: " + (aiError?.message || aiError?.toString() || "Unknown error")
+        error: "Google Gemini API error: " + errorMessage
       }, { status: 500 });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error generating data:", error);
     return NextResponse.json(
       { error: "Failed to generate data. Please try again." },
