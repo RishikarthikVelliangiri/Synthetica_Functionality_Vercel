@@ -34,8 +34,8 @@ export function CodeHighlighter({
   const syntaxLanguage = languageMap[language.toLowerCase()] || 'text';
   
   // Format-specific style customizations
-  const getFormatStyles = () => {
-    const baseStyles = {
+  const getFormatStyles = (): React.CSSProperties => {
+    const baseStyles: React.CSSProperties = {
       margin: 0,
       padding: '1.25rem',
       borderRadius: '0.5rem',
