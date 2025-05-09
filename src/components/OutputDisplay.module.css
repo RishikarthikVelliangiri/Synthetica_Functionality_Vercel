@@ -1,0 +1,93 @@
+.data-output-container {
+  width: 100%;
+  height: 100%;
+  transition: all 0.3s ease-in-out;
+  border-radius: 0.5rem;
+}
+
+/* Format-specific styling for output containers */
+.format-json {
+  background-color: rgba(251, 248, 242, 0.8);
+  border-left: 4px solid rgba(234, 179, 8, 0.5);
+}
+
+.format-csv {
+  background-color: rgba(241, 249, 244, 0.8);
+  border-left: 4px solid rgba(34, 197, 94, 0.5);
+}
+
+.format-sql {
+  background-color: rgba(240, 248, 255, 0.8);
+  border-left: 4px solid rgba(59, 130, 246, 0.5);
+}
+
+.format-xml {
+  background-color: rgba(247, 242, 253, 0.8);
+  border-left: 4px solid rgba(168, 85, 247, 0.5);
+}
+
+.format-yaml {
+  background-color: rgba(254, 242, 248, 0.8);
+  border-left: 4px solid rgba(225, 29, 72, 0.5);
+}
+
+/* Additional styling for syntax highlighting */
+:global(.format-json pre) {
+  font-family: 'Consolas', monospace !important;
+}
+
+:global(.format-sql pre) {
+  font-family: 'Consolas', monospace !important;
+}
+
+:global(.format-csv pre) {
+  font-family: 'Consolas', monospace !important;
+}
+
+:global(.format-xml pre) {
+  font-family: 'Consolas', monospace !important;
+}
+
+:global(.format-yaml pre) {
+  font-family: 'Consolas', monospace !important;
+}
+
+/* Table-like displays for CSV */
+:global(.format-csv table) {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+:global(.format-csv th) {
+  background-color: rgba(34, 197, 94, 0.1);
+  font-weight: bold;
+  padding: 8px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+:global(.format-csv td) {
+  padding: 6px 8px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Stop any typewriter or animation effects */
+.no-animation * {
+  animation: none !important;
+  transition: opacity 0.3s ease-in-out !important;
+}
+
+/* Remove confetti effect */
+:global(.react-confetti) {
+  display: none !important;
+}
+
+/* Format badges */
+.format-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 import { CheckIcon, CopyIcon, DownloadIcon, Code, FileJson, FileSpreadsheet, Database, FileCode, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CodeHighlighter } from "./ui/syntax-highlighter";
+import styles from "./OutputDisplay.module.css";
 
 interface OutputDisplayProps {
   data: string;
@@ -23,6 +24,203 @@ const OutputDisplay = ({
 }: OutputDisplayProps) => {
   const [copied, setCopied] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [formattedData, setFormattedData] = useState("");
+  
+  // Format the output data based on the format type
+  useEffect(() => {
+    if (!data) {
+      setFormattedData("");
+      return;
+    }
+    
+    try {
+      // Process the data based on format
+      switch (format.toLowerCase()) {
+        case "json":
+          // Pretty-print JSON with proper indentation
+          try {
+            const jsonObj = JSON.parse(data);
+            // Use a custom function to prevent circular references
+            setFormattedData(formatJSON(jsonObj));
+          } catch (e) {
+            // If parsing fails, use the original data
+            setFormattedData(data);
+          }
+          break;
+          
+        case "xml":          // Format XML with proper indentation
+          setFormattedData(formatXML(data));
+          break;
+          
+        case "csv":
+          // Format CSV to be more readable
+          setFormattedData(formatCSV(data));
+          break;
+          
+        case "yaml":
+          // Keep YAML as is (already pretty-formatted by design)
+          setFormattedData(data);
+          break;
+          
+        case "sql":
+          // Format SQL for better readability
+          setFormattedData(formatSQL(data));
+          break;
+          
+        default:
+          // For other formats, use data as is
+          setFormattedData(data);
+      }
+    } catch (e) {
+      console.error("Error formatting data:", e);
+      setFormattedData(data);
+    }
+  }, [data, format]);
+  
+  // Helper function to format XML with proper indentation
+  const formatXML = (xml: string): string => {
+    try {
+      // Handle XML declaration separately
+      let xmlDeclaration = '';
+      let xmlContent = xml;
+      
+      const declMatch = xml.match(/^<\?xml.*?\?>/);
+      if (declMatch) {
+        xmlDeclaration = declMatch[0];
+        xmlContent = xml.substring(xmlDeclaration.length);
+      }
+      
+      let formatted = '';
+      let indent = '';
+      const tab = '  '; // 2 spaces
+      
+      // Process the content after declaration
+      xmlContent.split(/>\s*</).forEach(node => {
+        // Handle comment nodes
+        if (node.trim().startsWith('!--')) {
+          formatted += indent + '<' + node + '>';
+          return;
+        }
+        
+        // Handle self-closing tags
+        if (node.trim().endsWith('/')) {
+          formatted += indent + '<' + node + '>\r\n';
+          return;
+        }
+        
+        if (node.match(/^\/\w/)) {
+          // Closing tag
+          indent = indent.substring(tab.length);
+        }
+        
+        formatted += indent + '<' + node + '>\r\n';
+        
+        if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith("?")) {
+          // Opening tag
+          indent += tab;
+        }
+      });
+      
+      // Combine declaration and formatted content
+      return xmlDeclaration + formatted.substring(1, formatted.length - 1);
+    } catch (e) {
+      console.error('XML formatting error:', e);
+      // Return original XML if formatting fails
+      return xml;
+    }
+  };
+
+  // Custom JSON formatting function to handle large objects and arrays safely
+  const formatJSON = (obj: any, indent = 2): string => {
+    try {
+      // Safely handle potential circular references
+      const cache = new Set();
+      return JSON.stringify(
+        obj,
+        (key, value) => {
+          if (typeof value === 'object' && value !== null) {
+            if (cache.has(value)) {
+              return '[Circular Reference]';
+            }
+            cache.add(value);
+          }
+          return value;
+        },
+        indent
+      );
+    } catch (error) {
+      console.error("JSON formatting error:", error);
+      // Fallback to basic stringification
+      return JSON.stringify(obj, null, 2);
+    }
+  };
+
+  // Format CSV for better display in syntax highlighter
+  const formatCSV = (csvData: string): string => {
+    try {
+      const lines = csvData.trim().split(/\r?\n/);
+      if (lines.length === 0) return csvData;
+      
+      // Process header row
+      const header = lines[0];
+      const headers = parseCSVLine(header);
+      
+      // Format as markdown table for better visual representation
+      const formattedHeader = `| ${headers.join(' | ')} |`;
+      const separator = `| ${headers.map(() => '---').join(' | ')} |`;
+      
+      // Format data rows
+      const formattedRows = lines.slice(1).map(line => {
+        const fields = parseCSVLine(line);
+        return `| ${fields.join(' | ')} |`;
+      });
+      
+      return [formattedHeader, separator, ...formattedRows].join('\n');
+    } catch (e) {
+      console.error("CSV formatting error:", e);
+      return csvData;
+    }
+  };
+  
+  // Helper function to parse CSV lines correctly (handling quoted fields with commas)
+  const parseCSVLine = (line: string): string[] => {
+    const values: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        inQuotes = !inQuotes;
+        // Optionally keep or strip quotes
+        current += char;
+      } else if (char === ',' && !inQuotes) {
+        values.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    values.push(current.trim());
+    
+    return values;
+  };
+  
+  // Format SQL for better readability
+  const formatSQL = (sqlData: string): string => {
+    try {
+      // Basic SQL formatting - add newlines after key SQL keywords
+      return sqlData
+        .replace(/\s+/g, ' ')  // Normalize whitespace
+        .replace(/;/g, ';\n\n') // Separate statements
+        .replace(/\b(SELECT|FROM|WHERE|GROUP BY|ORDER BY|HAVING|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN|UNION|CREATE TABLE|INSERT INTO|UPDATE|DELETE FROM)\b/gi, '\n$1\n')
+        .replace(/,\s*(?=\w)/g, ',\n  ') // Format column lists
+        .trim();
+    } catch (e) {
+      console.error("SQL formatting error:", e);
+      return sqlData;
+    }
+  };
 
   const copyToClipboard = async () => {
     try {
@@ -251,7 +449,7 @@ const OutputDisplay = ({
         </AnimatePresence>
       </div>
 
-      <Card className="w-full border border-blue-100/50 shadow-lg rounded-xl overflow-hidden backdrop-blur-sm bg-white/80 hover:shadow-xl transition-all duration-300">
+      <Card className={`w-full border border-blue-100/50 shadow-lg rounded-xl overflow-hidden backdrop-blur-sm bg-white/80 hover:shadow-xl transition-all duration-300 ${format ? `format-container-${format.toLowerCase()}` : ''}`}>
         <CardContent className="p-0">
           <AnimatePresence mode="wait">
             {isLoading ? (
@@ -302,9 +500,11 @@ const OutputDisplay = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="overflow-auto max-h-[500px] rounded-lg shadow-inner"
+                className={`overflow-auto max-h-[500px] rounded-lg shadow-inner no-animation format-${format.toLowerCase()}`}
               >
-                <CodeHighlighter code={data} language={format} />
+                <div className={`${styles["data-output-container"]} format-${format.toLowerCase()}`}>
+                  <CodeHighlighter code={formattedData || data} language={format} isDark={false} />
+                </div>
               </motion.div>
             ) : (
               <motion.div 
