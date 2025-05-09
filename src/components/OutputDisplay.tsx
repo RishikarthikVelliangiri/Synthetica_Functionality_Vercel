@@ -494,15 +494,14 @@ const OutputDisplay = ({
               >
                 {error}
               </motion.div>
-            ) : data ? (
-              <motion.div 
+            ) : data ? (              <motion.div 
                 key="data"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className={`overflow-auto max-h-[500px] rounded-lg shadow-inner no-animation format-${format.toLowerCase()}`}
+                className={`overflow-auto max-h-[500px] rounded-lg shadow-inner ${styles["no-animation"]}`}
               >
-                <div className={`${styles["data-output-container"]} format-${format.toLowerCase()}`}>
+                <div className={`${styles["data-output-container"]} ${styles[`format-${format.toLowerCase()}`]}`}>
                   <CodeHighlighter code={formattedData || data} language={format} isDark={false} />
                 </div>
               </motion.div>
